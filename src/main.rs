@@ -3,6 +3,7 @@ use thiserror::Error;
 use askama::Template;
 use r2d2_sqlite::SqliteConnectionManager;
 use r2d2::Pool;
+use rusqlite::params;
 
 struct TodoEntry {
     id: u32,
@@ -39,7 +40,10 @@ async fn index(db: web::Data<Pool<SqliteConnectionManager>>) -> Result<HttpRespo
         Ok(TodoEntry{ id, text })
     })?;
 
-    // todo
+    let mut entries = Vec::new();
+    for row in rows{
+        entries.push(row?);
+    }
 
     let html = IndexTemplate{ entries };
     let response_body = html.render()?;
